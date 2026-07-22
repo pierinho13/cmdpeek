@@ -1,0 +1,736 @@
+version: 1
+shell: bash
+
+commands:
+  - name: get-pods
+    title: Get Kubernetes pods
+    description: List pods from a selected namespace
+    labels: [kubernetes, kubectl, get, pods, kgpo, kgpoowide, kgpooyaml, kgpoojson, kgposl, kgpow]
+    run: |
+      display="{{display}}"
+      if [[ "$display" == "default" ]]; then
+        display=""
+      fi
+      kubectl get pods -n {{namespace}} $display
+    variables:
+      - name: namespace
+        prompt: Select namespace
+        description: Namespace from the current Kubernetes context
+        source:
+          type: command
+          command: >-
+            kubectl get namespaces
+            -o jsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}'
+      - name: display
+        prompt: Select display mode
+        description: Optional output or watch mode
+        default: default
+        source:
+          type: options
+          values: [default, "-o wide", "-o yaml", "-o json", "--show-labels", "--watch"]
+
+  - name: get-pods-all-namespaces
+    title: Get pods across all namespaces
+    description: List pods in every namespace
+    labels: [kubernetes, kubectl, get, pods, all-namespaces, kgpoall, kgpoallowide, kgpoallsl]
+    run: |
+      display="{{display}}"
+      if [[ "$display" == "default" ]]; then
+        display=""
+      fi
+      kubectl get pods --all-namespaces $display
+    variables:
+      - name: display
+        prompt: Select display mode
+        description: Optional output or watch mode
+        default: -o wide
+        source:
+          type: options
+          values: [default, "-o wide", "-o yaml", "-o json", "--show-labels", "--watch"]
+
+  - name: describe-pod
+    title: Describe Kubernetes pod
+    description: Show detailed information and events for a selected pod
+    labels: [kubernetes, kubectl, describe, pod, kdpo]
+    run: kubectl describe pod {{pod}} -n {{namespace}}
+    variables:
+      - name: namespace
+        prompt: Select namespace
+        description: Namespace containing the pod
+        source:
+          type: command
+          command: >-
+            kubectl get namespaces
+            -o jsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}'
+      - name: pod
+        prompt: Select pod
+        description: Pod discovered inside the selected namespace
+        source:
+          type: command
+          command: >-
+            kubectl get pods -n {{namespace}}
+            -o jsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}'
+
+  - name: pod-logs
+    title: Follow pod logs
+    description: Stream logs from a selected pod
+    labels: [kubernetes, kubectl, logs, pod, follow, klo]
+    run: kubectl logs -f {{pod}} -n {{namespace}}
+    variables:
+      - name: namespace
+        prompt: Select namespace
+        description: Namespace containing the pod
+        source:
+          type: command
+          command: >-
+            kubectl get namespaces
+            -o jsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}'
+      - name: pod
+        prompt: Select pod
+        description: Pod discovered inside the selected namespace
+        source:
+          type: command
+          command: >-
+            kubectl get pods -n {{namespace}}
+            -o jsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}'
+
+  - name: previous-pod-logs
+    title: Follow previous pod logs
+    description: Stream logs from the previous container instance of a selected pod
+    labels: [kubernetes, kubectl, logs, previous, crash, klop]
+    run: kubectl logs -f -p {{pod}} -n {{namespace}}
+    variables:
+      - name: namespace
+        prompt: Select namespace
+        description: Namespace containing the pod
+        source:
+          type: command
+          command: >-
+            kubectl get namespaces
+            -o jsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}'
+      - name: pod
+        prompt: Select pod
+        description: Pod discovered inside the selected namespace
+        source:
+          type: command
+          command: >-
+            kubectl get pods -n {{namespace}}
+            -o jsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}'
+
+  - name: exec-pod
+    title: Open a shell in a pod
+    description: Start an interactive shell in a selected pod
+    labels: [kubernetes, kubectl, exec, pod, shell, kex]
+    run: kubectl exec -it {{pod}} -n {{namespace}} -- {{shell_command}}
+    variables:
+      - name: namespace
+        prompt: Select namespace
+        description: Namespace containing the pod
+        source:
+          type: command
+          command: >-
+            kubectl get namespaces
+            -o jsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}'
+      - name: pod
+        prompt: Select pod
+        description: Pod discovered inside the selected namespace
+        source:
+          type: command
+          command: >-
+            kubectl get pods -n {{namespace}}
+            -o jsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}'
+      - name: shell_command
+        prompt: Select shell
+        description: Shell command to start inside the container
+        default: /bin/sh
+        source:
+          type: options
+          values: [/bin/sh, /bin/bash]
+
+  - name: delete-pod
+    title: Delete Kubernetes pod
+    description: Delete a selected pod from a namespace
+    labels: [kubernetes, kubectl, delete, pod, krmpo]
+    run: kubectl delete pod {{pod}} -n {{namespace}}
+    variables:
+      - name: namespace
+        prompt: Select namespace
+        description: Namespace containing the pod
+        source:
+          type: command
+          command: >-
+            kubectl get namespaces
+            -o jsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}'
+      - name: pod
+        prompt: Select pod
+        description: Pod to delete
+        source:
+          type: command
+          command: >-
+            kubectl get pods -n {{namespace}}
+            -o jsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}'
+
+  - name: get-deployments
+    title: Get Kubernetes deployments
+    description: List deployments from a selected namespace
+    labels: [kubernetes, kubectl, get, deployment, deployments, kgdep, kgdepowide, kgdepoyaml, kgdepojson]
+    run: |
+      display="{{display}}"
+      if [[ "$display" == "default" ]]; then
+        display=""
+      fi
+      kubectl get deployments -n {{namespace}} $display
+    variables:
+      - name: namespace
+        prompt: Select namespace
+        description: Namespace from the current Kubernetes context
+        source:
+          type: command
+          command: >-
+            kubectl get namespaces
+            -o jsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}'
+      - name: display
+        prompt: Select display mode
+        description: Optional output or watch mode
+        default: default
+        source:
+          type: options
+          values: [default, "-o wide", "-o yaml", "-o json", "--show-labels", "--watch"]
+
+  - name: describe-deployment
+    title: Describe Kubernetes deployment
+    description: Show detailed information and events for a selected deployment
+    labels: [kubernetes, kubectl, describe, deployment, kddep]
+    run: kubectl describe deployment {{deployment}} -n {{namespace}}
+    variables:
+      - name: namespace
+        prompt: Select namespace
+        description: Namespace containing the deployment
+        source:
+          type: command
+          command: >-
+            kubectl get namespaces
+            -o jsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}'
+      - name: deployment
+        prompt: Select deployment
+        description: Deployment discovered inside the selected namespace
+        source:
+          type: command
+          command: >-
+            kubectl get deployments -n {{namespace}}
+            -o jsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}'
+
+  - name: restart-deployment
+    title: Restart Kubernetes deployment
+    description: Trigger a rollout restart for a selected deployment
+    labels: [kubernetes, kubectl, deployment, restart, rollout]
+    run: kubectl rollout restart deployment {{deployment}} -n {{namespace}}
+    variables:
+      - name: namespace
+        prompt: Select namespace
+        description: Namespace containing the deployment
+        source:
+          type: command
+          command: >-
+            kubectl get namespaces
+            -o jsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}'
+      - name: deployment
+        prompt: Select deployment
+        description: Deployment discovered inside the selected namespace
+        source:
+          type: command
+          command: >-
+            kubectl get deployments -n {{namespace}}
+            -o jsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}'
+
+  - name: rollout-status
+    title: Show deployment rollout status
+    description: Wait for and display rollout progress for a deployment
+    labels: [kubernetes, kubectl, deployment, rollout, status]
+    run: kubectl rollout status deployment {{deployment}} -n {{namespace}}
+    variables:
+      - name: namespace
+        prompt: Select namespace
+        description: Namespace containing the deployment
+        source:
+          type: command
+          command: >-
+            kubectl get namespaces
+            -o jsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}'
+      - name: deployment
+        prompt: Select deployment
+        description: Deployment discovered inside the selected namespace
+        source:
+          type: command
+          command: >-
+            kubectl get deployments -n {{namespace}}
+            -o jsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}'
+
+  - name: deployment-history
+    title: Show deployment rollout history
+    description: Display rollout revisions for a deployment
+    labels: [kubernetes, kubectl, deployment, rollout, history]
+    run: kubectl rollout history deployment {{deployment}} -n {{namespace}}
+    variables:
+      - name: namespace
+        prompt: Select namespace
+        description: Namespace containing the deployment
+        source:
+          type: command
+          command: >-
+            kubectl get namespaces
+            -o jsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}'
+      - name: deployment
+        prompt: Select deployment
+        description: Deployment discovered inside the selected namespace
+        source:
+          type: command
+          command: >-
+            kubectl get deployments -n {{namespace}}
+            -o jsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}'
+
+  - name: delete-deployment
+    title: Delete Kubernetes deployment
+    description: Delete a selected deployment from a namespace
+    labels: [kubernetes, kubectl, delete, deployment, krmdep]
+    run: kubectl delete deployment {{deployment}} -n {{namespace}}
+    variables:
+      - name: namespace
+        prompt: Select namespace
+        description: Namespace containing the deployment
+        source:
+          type: command
+          command: >-
+            kubectl get namespaces
+            -o jsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}'
+      - name: deployment
+        prompt: Select deployment
+        description: Deployment to delete
+        source:
+          type: command
+          command: >-
+            kubectl get deployments -n {{namespace}}
+            -o jsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}'
+
+  - name: get-statefulsets
+    title: Get Kubernetes StatefulSets
+    description: List StatefulSets from a selected namespace
+    labels: [kubernetes, kubectl, get, statefulset, statefulsets, kgsts]
+    run: |
+      display="{{display}}"
+      if [[ "$display" == "default" ]]; then
+        display=""
+      fi
+      kubectl get statefulsets -n {{namespace}} $display
+    variables:
+      - name: namespace
+        prompt: Select namespace
+        description: Namespace from the current Kubernetes context
+        source:
+          type: command
+          command: >-
+            kubectl get namespaces
+            -o jsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}'
+      - name: display
+        prompt: Select display mode
+        description: Optional output or watch mode
+        default: default
+        source:
+          type: options
+          values: [default, "-o wide", "-o yaml", "-o json", "--show-labels", "--watch"]
+
+  - name: restart-statefulset
+    title: Restart Kubernetes StatefulSet
+    description: Trigger a rollout restart for a selected StatefulSet
+    labels: [kubernetes, kubectl, statefulset, restart, rollout]
+    run: kubectl rollout restart statefulset {{statefulset}} -n {{namespace}}
+    variables:
+      - name: namespace
+        prompt: Select namespace
+        description: Namespace containing the StatefulSet
+        source:
+          type: command
+          command: >-
+            kubectl get namespaces
+            -o jsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}'
+      - name: statefulset
+        prompt: Select StatefulSet
+        description: StatefulSet discovered inside the selected namespace
+        source:
+          type: command
+          command: >-
+            kubectl get statefulsets -n {{namespace}}
+            -o jsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}'
+
+  - name: get-services
+    title: Get Kubernetes services
+    description: List services from a selected namespace
+    labels: [kubernetes, kubectl, get, service, services, kgsvc]
+    run: |
+      display="{{display}}"
+      if [[ "$display" == "default" ]]; then
+        display=""
+      fi
+      kubectl get services -n {{namespace}} $display
+    variables:
+      - name: namespace
+        prompt: Select namespace
+        description: Namespace from the current Kubernetes context
+        source:
+          type: command
+          command: >-
+            kubectl get namespaces
+            -o jsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}'
+      - name: display
+        prompt: Select display mode
+        description: Optional output or watch mode
+        default: default
+        source:
+          type: options
+          values: [default, "-o wide", "-o yaml", "-o json", "--show-labels", "--watch"]
+
+  - name: describe-service
+    title: Describe Kubernetes service
+    description: Show detailed information for a selected service
+    labels: [kubernetes, kubectl, describe, service, kdsvc]
+    run: kubectl describe service {{service}} -n {{namespace}}
+    variables:
+      - name: namespace
+        prompt: Select namespace
+        description: Namespace containing the service
+        source:
+          type: command
+          command: >-
+            kubectl get namespaces
+            -o jsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}'
+      - name: service
+        prompt: Select service
+        description: Service discovered inside the selected namespace
+        source:
+          type: command
+          command: >-
+            kubectl get services -n {{namespace}}
+            -o jsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}'
+
+  - name: port-forward-service
+    title: Port-forward Kubernetes service
+    description: Forward a local port to a selected service
+    labels: [kubernetes, kubectl, service, port-forward, kpf]
+    run: kubectl port-forward service/{{service}} {{ports}} -n {{namespace}}
+    variables:
+      - name: namespace
+        prompt: Select namespace
+        description: Namespace containing the service
+        source:
+          type: command
+          command: >-
+            kubectl get namespaces
+            -o jsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}'
+      - name: service
+        prompt: Select service
+        description: Service discovered inside the selected namespace
+        source:
+          type: command
+          command: >-
+            kubectl get services -n {{namespace}}
+            -o jsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}'
+      - name: ports
+        prompt: Local and remote ports
+        description: Port mapping in LOCAL:REMOTE format
+        default: 8080:80
+        source:
+          type: input
+
+  - name: get-configmaps
+    title: Get Kubernetes ConfigMaps
+    description: List ConfigMaps from a selected namespace
+    labels: [kubernetes, kubectl, get, configmap, configmaps, kgcm]
+    run: |
+      display="{{display}}"
+      if [[ "$display" == "default" ]]; then
+        display=""
+      fi
+      kubectl get configmaps -n {{namespace}} $display
+    variables:
+      - name: namespace
+        prompt: Select namespace
+        description: Namespace from the current Kubernetes context
+        source:
+          type: command
+          command: >-
+            kubectl get namespaces
+            -o jsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}'
+      - name: display
+        prompt: Select display mode
+        description: Optional output format
+        default: default
+        source:
+          type: options
+          values: [default, "-o yaml", "-o json", "--show-labels"]
+
+  - name: get-secrets
+    title: Get Kubernetes secrets
+    description: List secrets from a selected namespace
+    labels: [kubernetes, kubectl, get, secret, secrets, kgsec]
+    run: |
+      display="{{display}}"
+      if [[ "$display" == "default" ]]; then
+        display=""
+      fi
+      kubectl get secrets -n {{namespace}} $display
+    variables:
+      - name: namespace
+        prompt: Select namespace
+        description: Namespace from the current Kubernetes context
+        source:
+          type: command
+          command: >-
+            kubectl get namespaces
+            -o jsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}'
+      - name: display
+        prompt: Select display mode
+        description: Optional output format
+        default: default
+        source:
+          type: options
+          values: [default, "-o yaml", "-o json", "--show-labels"]
+
+  - name: get-ingresses
+    title: Get Kubernetes ingresses
+    description: List ingresses from a selected namespace
+    labels: [kubernetes, kubectl, get, ingress, ingresses, kging]
+    run: |
+      display="{{display}}"
+      if [[ "$display" == "default" ]]; then
+        display=""
+      fi
+      kubectl get ingresses -n {{namespace}} $display
+    variables:
+      - name: namespace
+        prompt: Select namespace
+        description: Namespace from the current Kubernetes context
+        source:
+          type: command
+          command: >-
+            kubectl get namespaces
+            -o jsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}'
+      - name: display
+        prompt: Select display mode
+        description: Optional output format
+        default: default
+        source:
+          type: options
+          values: [default, "-o wide", "-o yaml", "-o json", "--show-labels"]
+
+  - name: get-nodes
+    title: Get Kubernetes nodes
+    description: List cluster nodes
+    labels: [kubernetes, kubectl, get, nodes, kgno]
+    run: |
+      display="{{display}}"
+      if [[ "$display" == "default" ]]; then
+        display=""
+      fi
+      kubectl get nodes $display
+    variables:
+      - name: display
+        prompt: Select display mode
+        description: Optional output or watch mode
+        default: -o wide
+        source:
+          type: options
+          values: [default, "-o wide", "-o yaml", "-o json", "--show-labels", "--watch"]
+
+  - name: describe-node
+    title: Describe Kubernetes node
+    description: Show detailed information and conditions for a selected node
+    labels: [kubernetes, kubectl, describe, node, kdno]
+    run: kubectl describe node {{node}}
+    variables:
+      - name: node
+        prompt: Select node
+        description: Node discovered from the current cluster
+        source:
+          type: command
+          command: >-
+            kubectl get nodes
+            -o jsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}'
+
+  - name: get-namespaces
+    title: Get Kubernetes namespaces
+    description: List namespaces in the current cluster
+    labels: [kubernetes, kubectl, get, namespace, namespaces, kgns]
+    run: |
+      display="{{display}}"
+      if [[ "$display" == "default" ]]; then
+        display=""
+      fi
+      kubectl get namespaces $display
+    variables:
+      - name: display
+        prompt: Select display mode
+        description: Optional output format
+        default: default
+        source:
+          type: options
+          values: [default, "-o wide", "-o yaml", "-o json", "--show-labels"]
+
+  - name: get-events
+    title: Get Kubernetes events
+    description: Show namespace events ordered by creation time
+    labels: [kubernetes, kubectl, events, troubleshooting]
+    run: kubectl get events -n {{namespace}} --sort-by=.metadata.creationTimestamp
+    variables:
+      - name: namespace
+        prompt: Select namespace
+        description: Namespace whose events should be displayed
+        source:
+          type: command
+          command: >-
+            kubectl get namespaces
+            -o jsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}'
+
+  - name: get-all-resources
+    title: Get common namespace resources
+    description: List common workload and service resources in a namespace
+    labels: [kubernetes, kubectl, get, all, resources]
+    run: |
+      display="{{display}}"
+      if [[ "$display" == "default" ]]; then
+        display=""
+      fi
+      kubectl get all -n {{namespace}} $display
+    variables:
+      - name: namespace
+        prompt: Select namespace
+        description: Namespace whose resources should be displayed
+        source:
+          type: command
+          command: >-
+            kubectl get namespaces
+            -o jsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}'
+      - name: display
+        prompt: Select display mode
+        description: Optional output mode
+        default: -o wide
+        source:
+          type: options
+          values: [default, "-o wide", "-o yaml", "-o json", "--show-labels", "--watch"]
+
+  - name: apply-manifests
+    title: Apply Kubernetes manifests
+    description: Recursively apply manifests from a file or directory
+    labels: [kubernetes, kubectl, apply, manifests, yaml, ka]
+    run: kubectl apply --recursive -f "{{path}}"
+    variables:
+      - name: path
+        prompt: Manifest path
+        description: File or directory containing Kubernetes manifests
+        default: .
+        source:
+          type: input
+
+  - name: apply-kustomize
+    title: Apply Kubernetes Kustomize directory
+    description: Apply a Kustomize directory using kubectl
+    labels: [kubernetes, kubectl, apply, kustomize, kak]
+    run: kubectl apply -k "{{path}}"
+    variables:
+      - name: path
+        prompt: Kustomize path
+        description: Directory containing kustomization.yaml
+        default: .
+        source:
+          type: input
+
+  - name: render-kustomize
+    title: Render Kubernetes Kustomize directory
+    description: Render a Kustomize directory without applying it
+    labels: [kubernetes, kubectl, kustomize, render, kk]
+    run: kubectl kustomize "{{path}}"
+    variables:
+      - name: path
+        prompt: Kustomize path
+        description: Directory containing kustomization.yaml
+        default: .
+        source:
+          type: input
+
+  - name: kubectl-proxy
+    title: Start kubectl proxy
+    description: Start a local proxy to the Kubernetes API server
+    labels: [kubernetes, kubectl, proxy, kp]
+    run: kubectl proxy --port={{port}}
+    variables:
+      - name: port
+        prompt: Local port
+        description: Port used by the local Kubernetes API proxy
+        default: "8001"
+        source:
+          type: input
+
+  - name: run-temporary-pod
+    title: Run temporary Kubernetes pod
+    description: Start an interactive temporary pod and remove it on exit
+    labels: [kubernetes, kubectl, run, temporary, debug, krun]
+    run: >-
+      kubectl run {{name}}
+      --rm
+      --restart=Never
+      --image-pull-policy=IfNotPresent
+      --image={{image}}
+      -it
+      -n {{namespace}}
+      -- {{command}}
+    variables:
+      - name: namespace
+        prompt: Select namespace
+        description: Namespace where the temporary pod should run
+        source:
+          type: command
+          command: >-
+            kubectl get namespaces
+            -o jsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}'
+      - name: name
+        prompt: Pod name
+        description: Name for the temporary pod
+        default: cmdpeek-debug
+        source:
+          type: input
+      - name: image
+        prompt: Container image
+        description: Image used by the temporary pod
+        default: alpine:latest
+        source:
+          type: input
+      - name: command
+        prompt: Container command
+        description: Command executed inside the temporary pod
+        default: /bin/sh
+        source:
+          type: input
+
+  - name: api-resources
+    title: List Kubernetes API resources
+    description: Show resource names, short names, API groups and namespace scope
+    labels: [kubernetes, kubectl, api, resources, discovery]
+    run: kubectl api-resources
+
+  - name: current-context
+    title: Show current Kubernetes context
+    description: Print the current kubectl context
+    labels: [kubernetes, kubectl, context, current]
+    run: kubectl config current-context
+
+  - name: switch-context
+    title: Switch Kubernetes context
+    description: Select and activate another kubectl context
+    labels: [kubernetes, kubectl, context, switch]
+    run: kubectl config use-context {{context}}
+    variables:
+      - name: context
+        prompt: Select context
+        description: Context discovered from the local kubeconfig
+        source:
+          type: command
+          command: kubectl config get-contexts -o name

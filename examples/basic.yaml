@@ -1,0 +1,284 @@
+version: 1
+
+# Default shell used by all commands unless a command overrides it.
+shell: bash
+
+commands:
+  - name: hello-world
+    title: Say hello
+    description: Basic command without variables
+    labels:
+      - example
+      - basic
+      - shell
+    run: echo "Hello from cmdpeek"
+
+  - name: greet-person
+    title: Greet a person
+    description: Demonstrates a manual input variable with a default value
+    labels:
+      - example
+      - input
+      - default
+      - greeting
+    run: |
+      set -euo pipefail
+      name="{{name}}"
+      echo "Hello, ${name}!"
+    variables:
+      - name: name
+        prompt: Person name
+        description: Name to include in the greeting
+        default: world
+        source:
+          type: input
+
+  - name: deploy-environment
+    title: Select deployment environment
+    description: Demonstrates a static options variable
+    labels:
+      - example
+      - options
+      - environment
+      - deployment
+    run: |
+      set -euo pipefail
+      environment="{{environment}}"
+      echo "Selected environment: ${environment}"
+    variables:
+      - name: environment
+        prompt: Select environment
+        description: Target environment for the deployment
+        default: development
+        source:
+          type: options
+          values:
+            - development
+            - staging
+            - production
+
+  - name: show-aws-profile
+    title: Show AWS profile
+    description: Demonstrates a variable loaded from an environment variable
+    labels:
+      - example
+      - environment
+      - aws
+      - profile
+    run: |
+      set -euo pipefail
+      profile="{{profile}}"
+      echo "AWS profile: ${profile}"
+    variables:
+      - name: profile
+        prompt: AWS profile
+        description: Initial value comes from AWS_PROFILE and can be edited
+        default: default
+        source:
+          type: environment
+          variable: AWS_PROFILE
+
+  - name: show-current-git-branch
+    title: Show current Git branch
+    description: Demonstrates a command source that normally returns one value and is accepted automatically
+    labels:
+      - example
+      - command
+      - git
+      - branch
+      - automatic
+    run: |
+      set -euo pipefail
+      branch="{{branch}}"
+      echo "Current branch: ${branch}"
+    variables:
+      - name: branch
+        prompt: Current branch
+        description: Current Git branch discovered automatically
+        source:
+          type: command
+          command: git branch --show-current
+
+  - name: checkout-git-branch
+    title: Checkout Git branch
+    description: Demonstrates a command source returning multiple selectable values
+    labels:
+      - example
+      - command
+      - git
+      - branch
+      - selector
+    run: git checkout "{{branch}}"
+    variables:
+      - name: branch
+        prompt: Select branch
+        description: Local Git branches discovered from the current repository
+        source:
+          type: command
+          command: git branch --format='%(refname:short)'
+
+  - name: list-kubernetes-pods
+    title: List Kubernetes pods
+    description: Demonstrates dependent command variables resolved in declaration order
+    labels:
+      - example
+      - kubernetes
+      - command
+      - dependency
+      - namespace
+      - pods
+    run: kubectl get pods -n "{{namespace}}" {{display}}
+    variables:
+      - name: namespace
+        prompt: Select namespace
+        description: Namespace discovered from the current Kubernetes context
+        source:
+          type: command
+          command: >-
+            kubectl get namespaces
+            -o jsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}'
+
+      - name: display
+        prompt: Select display mode
+        description: Additional kubectl output option
+        default: standard
+        source:
+          type: options
+          values:
+            - standard
+            - wide
+            - yaml
+            - json
+            - labels
+
+  - name: describe-kubernetes-pod
+    title: Describe Kubernetes pod
+    description: Demonstrates one command variable depending on a previously selected command variable
+    labels:
+      - example
+      - kubernetes
+      - command
+      - dependency
+      - pod
+      - describe
+    run: kubectl describe pod "{{pod}}" -n "{{namespace}}"
+    variables:
+      - name: namespace
+        prompt: Select namespace
+        description: Namespace discovered from the current Kubernetes context
+        source:
+          type: command
+          command: >-
+            kubectl get namespaces
+            -o jsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}'
+
+      - name: pod
+        prompt: Select pod
+        description: Pods discovered inside the selected namespace
+        source:
+          type: command
+          command: >-
+            kubectl get pods
+            -n {{namespace}}
+            -o jsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}'
+
+  - name: create-output-file
+    title: Create output file
+    description: Demonstrates multiple manual variables and a default path
+    labels:
+      - example
+      - input
+      - file
+      - multiple-variables
+    run: |
+      set -euo pipefail
+
+      output="{{output}}"
+      message="{{message}}"
+
+      mkdir -p "$(dirname "$output")"
+      printf '%s\n' "$message" > "$output"
+
+      echo "Saved to: $output"
+    variables:
+      - name: message
+        prompt: File content
+        description: Text written into the output file
+        default: Generated by cmdpeek
+        source:
+          type: input
+
+      - name: output
+        prompt: Output file
+        description: Destination path for the generated file
+        default: $HOME/temporales/cmdpeek-example.txt
+        source:
+          type: input
+
+  - name: long-script-preview
+    title: Run long script preview example
+    description: Demonstrates a multiline command and the scrollable preview
+    labels:
+      - example
+      - preview
+      - multiline
+      - scroll
+      - input
+    run: |
+      set -euo pipefail
+
+      project="{{project}}"
+      output="{{output}}"
+
+      echo "Preparing project: $project"
+      echo "Step 1: validate configuration"
+      echo "Step 2: create temporary directory"
+      echo "Step 3: collect metadata"
+      echo "Step 4: render generated files"
+      echo "Step 5: validate generated files"
+      echo "Step 6: package output"
+      echo "Step 7: write final artifact"
+
+      mkdir -p "$(dirname "$output")"
+
+      {
+        echo "Project: $project"
+        echo "Generated at: $(date)"
+        echo "Status: complete"
+      } > "$output"
+
+      echo "Artifact written to: $output"
+    variables:
+      - name: project
+        prompt: Project name
+        description: Name shown in the generated example artifact
+        default: cmdpeek-demo
+        source:
+          type: input
+
+      - name: output
+        prompt: Output file
+        description: File created by the long script example
+        default: $HOME/temporales/cmdpeek-long-example.txt
+        source:
+          type: input
+
+  - name: shell-override
+    title: Use a command-specific shell
+    description: Demonstrates overriding the global shell for one command
+    labels:
+      - example
+      - shell
+      - override
+      - sh
+    shell: sh
+    run: |
+      value="{{value}}"
+      printf 'Executed with sh: %s\n' "$value"
+    variables:
+      - name: value
+        prompt: Value
+        description: Value printed by the command-specific shell example
+        default: cmdpeek
+        source:
+          type: input

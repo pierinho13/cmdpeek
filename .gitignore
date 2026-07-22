@@ -1,0 +1,5 @@
+cmdpeek
+.cmdpeek.yaml
+dist/
+coverage.out
+.DS_Store
