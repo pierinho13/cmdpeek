@@ -1,9 +1,9 @@
 Output assets/cmdpeek-search-scroll-demo.gif
 
 Set Shell "zsh"
-Set FontSize 18
-Set Width 1800
-Set Height 800
+Set FontSize 26
+Set Width 2800
+Set Height 1800
 Set TypingSpeed 60ms
 Set Theme "Dracula"
 
@@ -38,7 +38,7 @@ Enter
 Sleep 2s
 
 Enter
-Sleep 2s
+Sleep 5s
 
 Type "y"
 Sleep 500ms
