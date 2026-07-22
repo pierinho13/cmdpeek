@@ -1,6 +1,7 @@
 # cmdpeek
 
 [![CI](https://github.com/pierinho13/cmdpeek/actions/workflows/ci.yaml/badge.svg)](https://github.com/pierinho13/cmdpeek/actions/workflows/ci.yaml)
+[![Release](https://img.shields.io/github/v/release/pierinho13/cmdpeek)](https://github.com/pierinho13/cmdpeek/releases)
 [![Go Report Card](https://goreportcard.com/badge/github.com/pierinho13/cmdpeek)](https://goreportcard.com/report/github.com/pierinho13/cmdpeek)
 [![License](https://img.shields.io/github/license/pierinho13/cmdpeek)](LICENSE)
 
@@ -330,6 +331,38 @@ Execution requires an explicit `y`. Pressing `Enter` cancels.
 
 ## Installation
 
+### Homebrew
+
+Linux and macOS users:
+
+```bash
+brew tap pierinho13/tools
+brew install --cask cmdpeek
+```
+
+Upgrade:
+
+```bash
+brew update
+brew upgrade --cask cmdpeek
+```
+
+The cask is published through [`pierinho13/homebrew-tools`](https://github.com/pierinho13/homebrew-tools).
+
+### GitHub Releases
+
+Download the archive for your operating system and architecture from the [Releases page](https://github.com/pierinho13/cmdpeek/releases), extract it and place the binary in your `PATH`.
+
+Linux and macOS:
+
+```bash
+tar -xzf cmdpeek_<version>_<os>_<arch>.tar.gz
+chmod +x cmdpeek
+sudo mv cmdpeek /usr/local/bin/
+```
+
+Windows releases are distributed as ZIP archives.
+
 ### Build from source
 
 ```bash
@@ -338,6 +371,12 @@ cd cmdpeek
 
 go build -o cmdpeek ./cmd/cmdpeek
 sudo mv cmdpeek /usr/local/bin/
+```
+
+Verify the installation:
+
+```bash
+cmdpeek --config examples/basic.yaml
 ```
 
 ## Quick start
@@ -457,7 +496,7 @@ Potential improvements include:
 - global and project-local configuration merging;
 - standalone configuration validation;
 - command history and favorites;
-- release archives and package-manager installation.
+- richer release automation and additional package-manager support.
 
 ## Contributing
 
