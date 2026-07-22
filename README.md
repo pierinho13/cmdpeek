@@ -1,5 +1,6 @@
 # cmdpeek
 
+[![CI](https://github.com/pierinho13/cmdpeek/actions/workflows/ci.yaml/badge.svg)](https://github.com/pierinho13/cmdpeek/actions/workflows/ci.yaml)
 [![Go Report Card](https://goreportcard.com/badge/github.com/pierinho13/cmdpeek)](https://goreportcard.com/report/github.com/pierinho13/cmdpeek)
 [![License](https://img.shields.io/github/license/pierinho13/cmdpeek)](LICENSE)
 

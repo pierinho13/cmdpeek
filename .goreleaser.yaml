@@ -1,0 +1,100 @@
+version: 2
+
+project_name: cmdpeek
+
+before:
+  hooks:
+    - go mod tidy
+    - go test ./...
+
+builds:
+  - id: cli
+    main: ./cmd/cmdpeek
+    binary: cmdpeek
+
+    env:
+      - CGO_ENABLED=0
+
+    goos:
+      - linux
+      - darwin
+      - windows
+
+    goarch:
+      - amd64
+      - arm64
+
+    ldflags:
+      - -s
+      - -w
+
+archives:
+  - id: cli
+    ids:
+      - cli
+
+    name_template: >-
+      {{ .ProjectName }}_
+      {{- .Version }}_
+      {{- title .Os }}_
+      {{- .Arch }}
+
+    formats:
+      - tar.gz
+
+    format_overrides:
+      - goos: windows
+        formats:
+          - zip
+
+checksum:
+  name_template: checksums.txt
+
+source:
+  enabled: true
+  name_template: "{{ .ProjectName }}_{{ .Version }}_source_code"
+
+changelog:
+  use: github-native
+
+release:
+  github:
+    owner: pierinho13
+    name: cmdpeek
+
+homebrew_casks:
+  - ids:
+      - cli
+
+    name: cmdpeek
+
+    repository:
+      owner: pierinho13
+      name: homebrew-tools
+      branch: main
+      token: "{{ .Env.HOMEBREW_TAP_TOKEN }}"
+
+    directory: Casks
+
+    description: Searchable interactive command palette for reusable terminal workflows
+    homepage: https://github.com/pierinho13/cmdpeek
+    license: MIT
+
+    binaries:
+      - cmdpeek
+
+    hooks:
+      post:
+        install: |
+          if OS.mac?
+            system_command "/usr/bin/xattr",
+              args: [
+                "-dr",
+                "com.apple.quarantine",
+                "#{staged_path}/cmdpeek"
+              ]
+          end
+
+    commit_author:
+      name: pierinho13
+      email: pierinho13@gmail.com
