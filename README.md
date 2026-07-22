@@ -11,7 +11,7 @@
 
 It lets you find commands by intent using titles, descriptions, labels and command contents, resolve their inputs interactively, preview the rendered shell command and execute it only after explicit confirmation.
 
-<img width="2800" height="1800" alt="cmdpeek-search-scroll-demo" src="https://github.com/user-attachments/assets/4bcbb458-2698-4a31-b904-437f89cbd97a" />
+<img width="2800" height="1800" alt="cmdpeek-search-scroll-demo" src="https://github.com/user-attachments/assets/afc4dbc5-904a-4005-b221-21bff9f7fae3" />
 
 
 <br><br>
