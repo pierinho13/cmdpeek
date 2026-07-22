@@ -2,7 +2,7 @@
 
 ## Supported versions
 
-Security fixes are applied to the latest released version of `kubectl-peek`.
+Security fixes are applied to the latest released version of `cmdpeek`.
 
 ## Reporting a vulnerability
 
