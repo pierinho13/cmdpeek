@@ -6,14 +6,10 @@ import (
 	"os"
 
 	"github.com/pierinho13/cmdpeek/internal/catalog"
+	"github.com/pierinho13/cmdpeek/internal/configsource"
 	"github.com/pierinho13/cmdpeek/internal/executor"
 	commandtemplate "github.com/pierinho13/cmdpeek/internal/template"
 	"github.com/pierinho13/cmdpeek/internal/tui"
-)
-
-const (
-	configEnvironmentVariable = "CMD_PEEK_CONFIG_FILE"
-	defaultConfigPath         = ".cmdpeek.yaml"
 )
 
 func main() {
@@ -25,7 +21,15 @@ func main() {
 
 	flag.Parse()
 
-	configPath := resolveConfigPath(*configFlag)
+	configPath, warning, err := configsource.Resolve(*configFlag)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "cmdpeek: %v\n", err)
+		os.Exit(1)
+	}
+
+	if warning != "" {
+		fmt.Fprintf(os.Stderr, "cmdpeek: warning: %s\n", warning)
+	}
 
 	config, err := catalog.Load(configPath)
 	if err != nil {
@@ -71,16 +75,4 @@ func main() {
 		fmt.Fprintf(os.Stderr, "cmdpeek: %v\n", err)
 		os.Exit(1)
 	}
-}
-
-func resolveConfigPath(configFlag string) string {
-	if configFlag != "" {
-		return configFlag
-	}
-
-	if configPath := os.Getenv(configEnvironmentVariable); configPath != "" {
-		return configPath
-	}
-
-	return defaultConfigPath
 }
