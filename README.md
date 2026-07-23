@@ -44,6 +44,7 @@ Confirm and execute
 - Live, scrollable command preview
 - Configurable shell globally or per command
 - Explicit confirmation before execution
+- Non-interactive execution for scripts, aliases and CI
 
 ## Discover commands by intent
 
@@ -341,6 +342,76 @@ y execute   n cancel   enter cancel
 
 Execution requires an explicit `y`. Pressing `Enter` cancels.
 
+## Non-interactive mode
+
+Commands can also be selected by their exact internal `name` without opening the searchable catalog.
+
+Provide variable values by name with repeatable `--set` flags:
+
+```bash
+cmdpeek \
+  --no-interactive \
+  --name deploy \
+  --set environment=staging \
+  --set version=1.4.2
+```
+
+`--set` is the recommended form because scripts remain readable and do not depend on the order of variables in the YAML catalog.
+
+Positional values are also supported and are assigned in declaration order:
+
+```bash
+cmdpeek \
+  --no-interactive \
+  --name gcommit \
+  "Add non-interactive execution" \
+  main
+```
+
+For a completely unattended execution, add `--yes`:
+
+```bash
+cmdpeek \
+  --no-interactive \
+  --name copy-source-files \
+  --set file_type=go \
+  --yes
+```
+
+Use `--dry-run` to render and print the final command without executing it:
+
+```bash
+cmdpeek \
+  --no-interactive \
+  --name deploy \
+  --set environment=production \
+  --set version=1.4.2 \
+  --dry-run
+```
+
+Non-interactive resolution follows these rules:
+
+```text
+input        use --set or a positional value, otherwise use the default
+environment  use --set, then the environment variable, then the default
+options      validate the supplied value against the configured options
+command      generate and validate available values in declaration order
+```
+
+For a `command` source, a single generated option is selected automatically. If multiple options are returned, a value must be supplied with `--set` or positionally.
+
+Unless `--yes` or `--dry-run` is used, the final rendered command is still shown in the confirmation interface before execution.
+
+Available flags:
+
+```text
+--no-interactive    select a command without the catalog TUI
+--name              exact command name
+--set NAME=VALUE    provide a named variable; may be repeated
+--yes               skip execution confirmation
+--dry-run           print the rendered command without executing it
+```
+
 ## Installation
 
 ### Homebrew
@@ -513,6 +584,7 @@ internal/template    Variable rendering and previews
 internal/variable    Dynamic command option resolution
 internal/tui         Catalog, variable and confirmation interfaces
 internal/executor    Shell execution
+internal/noninteractive Non-interactive command and variable resolution
 examples             Example command catalogs
 ```
 
