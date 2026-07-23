@@ -410,16 +410,34 @@ Configuration lookup order:
 
 ```text
 1. --config <path>
-2. CMD_PEEK_CONFIG_FILE
-3. .cmdpeek.yaml
+2. CMDPEEK_CONFIG_GITHUB
+3. CMDPEEK_CONFIG_FILE
+4. .cmdpeek.yaml
 ```
 
-For example:
+Use a local configuration file:
 
 ```bash
-export CMD_PEEK_CONFIG_FILE="$HOME/.config/cmdpeek/commands.yaml"
+export CMDPEEK_CONFIG_FILE="$HOME/.config/cmdpeek/commands.yaml"
 cmdpeek
 ```
+
+Or load a versioned catalog directly from GitHub:
+
+```bash
+export CMDPEEK_CONFIG_GITHUB="company/platform-config:cmdpeek/commands.yaml@main"
+cmdpeek
+```
+
+For private repositories, `cmdpeek` reads `CMDPEEK_GITHUB_TOKEN` first and falls back to `GITHUB_TOKEN`:
+
+```bash
+export CMDPEEK_CONFIG_GITHUB="company/private-config:cmdpeek/commands.yaml@main"
+export CMDPEEK_GITHUB_TOKEN="github_pat_..."
+cmdpeek
+```
+
+Remote configurations are checked on every startup using GitHub ETags. Changed files are downloaded and validated before replacing the local cache. If GitHub is temporarily unavailable, the last valid cached configuration is used with a warning.
 
 ## Configuration
 

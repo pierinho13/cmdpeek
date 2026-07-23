@@ -1,7 +1,7 @@
 Output assets/cmdpeek-search-scroll-demo.gif
 
 Set Shell "zsh"
-Set FontSize 26
+Set FontSize 30
 Set Width 2800
 Set Height 1800
 Set TypingSpeed 60ms

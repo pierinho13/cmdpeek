@@ -8,8 +8,9 @@
 
 ```text
 1. --config <path>
-2. CMD_PEEK_CONFIG_FILE
-3. .cmdpeek.yaml
+2. CMDPEEK_CONFIG_GITHUB
+3. CMDPEEK_CONFIG_FILE
+4. .cmdpeek.yaml
 ```
 
 Examples:
@@ -19,9 +20,52 @@ cmdpeek --config examples/basic.yaml
 ```
 
 ```bash
-export CMD_PEEK_CONFIG_FILE="$HOME/.config/cmdpeek/commands.yaml"
+export CMDPEEK_CONFIG_FILE="$HOME/.config/cmdpeek/commands.yaml"
 cmdpeek
 ```
+
+## GitHub configuration
+
+Use `CMDPEEK_CONFIG_GITHUB` to load a catalog from a GitHub repository:
+
+```bash
+export CMDPEEK_CONFIG_GITHUB="owner/repository:path/to/commands.yaml@ref"
+cmdpeek
+```
+
+Example:
+
+```bash
+export CMDPEEK_CONFIG_GITHUB="company/platform-config:cmdpeek/commands.yaml@main"
+```
+
+The `@ref` portion is optional. When omitted, GitHub uses the repository's default branch.
+
+For private repositories, provide a token with read access to the repository contents:
+
+```bash
+export CMDPEEK_GITHUB_TOKEN="github_pat_..."
+```
+
+Token lookup order:
+
+```text
+1. CMDPEEK_GITHUB_TOKEN
+2. GITHUB_TOKEN
+```
+
+### Remote cache
+
+Remote configurations are checked on every startup. `cmdpeek` stores the last valid copy under the operating system's user cache directory and sends its ETag to GitHub:
+
+```text
+GitHub changed the file    → download, validate and replace the cache
+GitHub returned 304        → reuse the existing cache
+GitHub is unavailable      → use the last valid cache with a warning
+No valid cache exists      → stop with an error
+```
+
+A downloaded configuration is validated before it replaces the previous cached copy.
 
 ## Minimal configuration
 
