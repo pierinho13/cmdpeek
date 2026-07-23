@@ -90,11 +90,10 @@ func main() {
 	if !*noInteractiveFlag {
 		if strings.TrimSpace(*nameFlag) != "" ||
 			len(providedValues.values) > 0 ||
-			len(flag.Args()) > 0 ||
 			*yesFlag {
 			exitWithError(
 				fmt.Errorf(
-					"--name, --set, positional values and --yes require --no-interactive",
+					"--name, --set and --yes require --no-interactive",
 				),
 			)
 		}
@@ -126,11 +125,19 @@ func main() {
 		return
 	}
 
-	runInteractive(config, *dryRunFlag)
+	runInteractive(
+		config,
+		strings.Join(flag.Args(), " "),
+		*dryRunFlag,
+	)
 }
 
-func runInteractive(config catalog.Config, dryRun bool) {
-	selected, err := tui.Run(config.Commands)
+func runInteractive(
+	config catalog.Config,
+	initialQuery string,
+	dryRun bool,
+) {
+	selected, err := tui.Run(config.Commands, initialQuery)
 	if err != nil {
 		exitWithError(err)
 	}

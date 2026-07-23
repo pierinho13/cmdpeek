@@ -118,11 +118,15 @@ type Model struct {
 	detailOffset int
 }
 
-func New(commands []catalog.Command) Model {
+func New(
+	commands []catalog.Command,
+	initialQuery string,
+) Model {
 	input := textinput.New()
 	input.Prompt = "Search: "
 	input.Placeholder = "title, description, label or command"
 	input.CharLimit = 200
+	input.SetValue(strings.TrimSpace(initialQuery))
 
 	model := Model{
 		commands:    commands,
@@ -133,7 +137,12 @@ func New(commands []catalog.Command) Model {
 		height:      defaultHeight,
 	}
 
+	if model.hasFilter() {
+		model.applyFilter()
+	}
+
 	model.clampCursor()
+	model.ensureCursorVisible()
 
 	return model
 }
@@ -998,8 +1007,15 @@ func (model Model) helpText() string {
 
 func Run(
 	commands []catalog.Command,
+	initialQuery string,
 ) (*catalog.Command, error) {
-	program := tea.NewProgram(New(commands))
+	model := New(commands, initialQuery)
+
+	if selected, ok := model.initialSelection(initialQuery); ok {
+		return &selected, nil
+	}
+
+	program := tea.NewProgram(model)
 
 	finalModel, err := program.Run()
 	if err != nil {
@@ -1018,6 +1034,27 @@ func Run(
 	selected := model.selected
 
 	return &selected, nil
+}
+
+func (model Model) initialSelection(
+	initialQuery string,
+) (catalog.Command, bool) {
+	query := strings.TrimSpace(initialQuery)
+	if query == "" {
+		return catalog.Command{}, false
+	}
+
+	for _, command := range model.commands {
+		if command.Name == query {
+			return command, true
+		}
+	}
+
+	if len(model.filtered) == 1 {
+		return model.filtered[0], true
+	}
+
+	return catalog.Command{}, false
 }
 
 func (model Model) selectCurrentCommand() (tea.Model, tea.Cmd) {

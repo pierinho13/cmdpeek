@@ -44,6 +44,7 @@ Confirm and execute
 - Live, scrollable command preview
 - Configurable shell globally or per command
 - Explicit confirmation before execution
+- Command-line search that opens the catalog already filtered
 - Non-interactive execution for scripts, aliases and CI
 
 ## Discover commands by intent
@@ -188,6 +189,53 @@ production deploy
 github actions
 elasticsearch size
 ```
+
+## Search from the command line
+
+Search terms can be passed directly after `cmdpeek`:
+
+```bash
+cmdpeek kubernetes context
+cmdpeek aws login
+cmdpeek elasticsearch shards
+```
+
+The positional arguments are joined into an initial search query and matched against the same searchable fields as the interactive catalog:
+
+```text
+title
+name
+description
+labels
+command contents
+```
+
+The resulting behavior is:
+
+```text
+exact command name  → select that command directly
+one search result   → select that command directly
+multiple results    → open the interactive catalog already filtered
+no results          → open the catalog showing no matching commands
+```
+
+For example:
+
+```bash
+cmdpeek switch-kubernetes-context
+```
+
+selects the command directly when its internal name is exactly `switch-kubernetes-context`.
+
+A broader query such as:
+
+```bash
+cmdpeek kubernetes context
+```
+
+keeps the workflow interactive when several commands match, allowing the user to review and choose the intended command.
+
+This mode is different from `--no-interactive`: command-line search still uses the interactive variable selectors, command preview and execution confirmation.
 
 ## Command details
 
@@ -358,7 +406,7 @@ cmdpeek \
 
 `--set` is the recommended form because scripts remain readable and do not depend on the order of variables in the YAML catalog.
 
-Positional values are also supported and are assigned in declaration order:
+When `--no-interactive` is enabled, positional values are assigned to variables in declaration order:
 
 ```bash
 cmdpeek \
@@ -367,6 +415,8 @@ cmdpeek \
   "Add non-interactive execution" \
   main
 ```
+
+Without `--no-interactive`, positional arguments are treated as an initial interactive search query instead.
 
 For a completely unattended execution, add `--yes`:
 
