@@ -1,23 +1,35 @@
-name: Release
+name: Publish release
 
 on:
-  push:
-    tags:
-      - "v*"
+  pull_request:
+    branches:
+      - main
+    types:
+      - closed
+
+  workflow_dispatch:
 
 permissions:
   contents: write
 
+concurrency:
+  group: release-main
+  cancel-in-progress: false
+
 jobs:
-  release:
-    name: Release
+  validate:
+    name: Validate before release
+    if: >
+      github.event_name == 'workflow_dispatch' ||
+      github.event.pull_request.merged == true
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      - name: Checkout merged commit
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          ref: ${{ github.event_name == 'workflow_dispatch' && 'main' || github.event.pull_request.merge_commit_sha }}
 
       - name: Set up Go
         uses: actions/setup-go@v5
@@ -25,11 +37,114 @@ jobs:
           go-version-file: go.mod
           cache: true
 
+      - name: Check formatting
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          files="$(gofmt -l .)"
+
+          if [[ -n "$files" ]]; then
+            echo "The following files are not formatted:"
+            echo "$files"
+            exit 1
+          fi
+
+      - name: Run tests
+        run: go test -race ./...
+
+      - name: Run vet
+        run: go vet ./...
+
+      - name: Validate GoReleaser
+        uses: goreleaser/goreleaser-action@v7
+        with:
+          version: "~> v2"
+          args: release --snapshot --clean
+
+  release:
+    name: Create and publish release
+    needs:
+      - validate
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout merged commit
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event_name == 'workflow_dispatch' && 'main' || github.event.pull_request.merge_commit_sha }}
+          token: ${{ secrets.RELEASE_TOKEN }}
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+
+      - name: Determine next patch version
+        id: version
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          git fetch --force --tags
+
+          latest_tag="$(
+            git tag \
+              --list 'v[0-9]*.[0-9]*.[0-9]*' \
+              --sort=-v:refname |
+            head -n 1
+          )"
+
+          if [[ -z "$latest_tag" ]]; then
+            latest_tag="v0.0.0"
+          fi
+
+          version="${latest_tag#v}"
+          IFS='.' read -r major minor patch <<< "$version"
+
+          if [[ ! "$major" =~ ^[0-9]+$ ]] ||
+             [[ ! "$minor" =~ ^[0-9]+$ ]] ||
+             [[ ! "$patch" =~ ^[0-9]+$ ]]; then
+            echo "Invalid semantic version tag: $latest_tag"
+            exit 1
+          fi
+
+          next_tag="v${major}.${minor}.$((patch + 1))"
+
+          echo "Current version: $latest_tag"
+          echo "Next version: $next_tag"
+
+          echo "tag=$next_tag" >> "$GITHUB_OUTPUT"
+
+      - name: Create and push tag
+        env:
+          NEXT_TAG: ${{ steps.version.outputs.tag }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if git ls-remote \
+            --exit-code \
+            --tags origin \
+            "refs/tags/${NEXT_TAG}" >/dev/null 2>&1; then
+            echo "Tag ${NEXT_TAG} already exists"
+            exit 1
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email \
+            "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git tag -a "$NEXT_TAG" -m "Release $NEXT_TAG"
+          git push origin "$NEXT_TAG"
+
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v7
         with:
           version: "~> v2"
           args: release --clean
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
           HOMEBREW_TAP_TOKEN: ${{ secrets.HOMEBREW_TAP_TOKEN }}
