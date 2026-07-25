@@ -358,11 +358,11 @@ Esc       Clear search or cancel
 For example:
 
 ```text
-Search: devbox
+Search: sandbox
 
-devbox-bears-3
-devbox-core-2
-devbox-edu-1
+sandbox-cat-3
+sandbox-dog-2
+sandbox-pet-1
 
 Page 1/2 · 11 options
 ```
