@@ -192,6 +192,10 @@ elasticsearch size
 
 ## Search from the command line
 
+<img width="1800" height="800" alt="cmdpeek-search-demo-filter" src="https://github.com/user-attachments/assets/ec0f0579-82d6-4d92-9e98-63ddb3161705" />
+
+
+
 Search terms can be passed directly after `cmdpeek`:
 
 ```bash
