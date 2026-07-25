@@ -396,6 +396,10 @@ Execution requires an explicit `y`. Pressing `Enter` cancels.
 
 ## Non-interactive mode
 
+<img width="1800" height="800" alt="cmdpeek-non-interactive-gcommit" src="https://github.com/user-attachments/assets/bf6ea668-159a-4379-b0ed-fe233c17c92e" />
+
+
+
 Commands can also be selected by their exact internal `name` without opening the searchable catalog.
 
 Provide variable values by name with repeatable `--set` flags:
