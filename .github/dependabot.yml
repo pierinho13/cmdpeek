@@ -5,22 +5,22 @@ updates:
     directory: /
     schedule:
       interval: daily
-      time: "07:00"
+      time: "06:00"
       timezone: Europe/Madrid
+    open-pull-requests-limit: 10
     groups:
       go-dependencies:
         patterns:
           - "*"
-    open-pull-requests-limit: 10
 
   - package-ecosystem: github-actions
     directory: /
     schedule:
       interval: daily
-      time: "07:30"
+      time: "06:15"
       timezone: Europe/Madrid
+    open-pull-requests-limit: 10
     groups:
       github-actions:
         patterns:
           - "*"
-    open-pull-requests-limit: 10
