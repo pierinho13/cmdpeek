@@ -20,6 +20,8 @@ It lets you find commands by intent using titles, descriptions, labels and comma
 
 <br>
 
+⭐ Drop a star to support cmdpeek ⭐
+
 ## How it works
 
 ```text
