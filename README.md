@@ -479,8 +479,7 @@ Available flags:
 Linux and macOS users:
 
 ```bash
-brew tap pierinho13/tools
-brew install --cask cmdpeek
+brew install --cask pierinho13/tools/cmdpeek
 ```
 
 Upgrade:
