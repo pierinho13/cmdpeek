@@ -1,0 +1,245 @@
+version: 1
+shell: bash
+
+commands:
+  - name: java-spotless-apply
+    title: Format Java project with Spotless
+    description: Run the Maven Spotless plugin to apply formatting fixes to the current Java project.
+    labels:
+      - java
+      - maven
+      - spotless
+      - format
+      - formatting
+      - fmt
+      - code-style
+      - cleanup
+      - java-helper
+    run: |
+      set -euo pipefail
+
+      if [[ ! -f pom.xml ]]; then
+        echo "pom.xml was not found in the current directory" >&2
+        exit 1
+      fi
+
+      mvn spotless:apply
+
+  - name: java-maven-verify
+    title: Verify Java project with Maven
+    description: Run the Maven verify lifecycle for the current Java project.
+    labels:
+      - java
+      - maven
+      - verify
+      - test
+      - build
+      - validation
+      - ci
+      - java-helper
+    run: |
+      set -euo pipefail
+
+      if [[ ! -f pom.xml ]]; then
+        echo "pom.xml was not found in the current directory" >&2
+        exit 1
+      fi
+
+      mvn verify
+
+  - name: java-maven-dependency-tree
+    title: Show Maven dependency tree
+    description: Display the complete Maven dependency tree for the current Java project.
+    labels:
+      - java
+      - maven
+      - dependency
+      - dependencies
+      - tree
+      - inspect
+      - troubleshooting
+      - transitive
+      - java-helper
+    run: |
+      set -euo pipefail
+
+      if [[ ! -f pom.xml ]]; then
+        echo "pom.xml was not found in the current directory" >&2
+        exit 1
+      fi
+
+      mvn dependency:tree
+
+  - name: java-maven-effective-pom-java-config
+    title: Inspect Java configuration from the Maven effective POM
+    description: Generate the Maven effective POM and print common Java compiler, source, target, release, and encoding settings.
+    labels:
+      - java
+      - maven
+      - effective-pom
+      - pom
+      - compiler
+      - source
+      - target
+      - release
+      - encoding
+      - inspect
+      - configuration
+      - java-helper
+    run: |
+      set -euo pipefail
+
+      if [[ ! -f pom.xml ]]; then
+        echo "pom.xml was not found in the current directory" >&2
+        exit 1
+      fi
+
+      if ! command -v xmllint >/dev/null 2>&1; then
+        echo "xmllint is not installed or is not available in PATH" >&2
+        exit 1
+      fi
+
+      effective_pom="$(mktemp)"
+      trap 'rm -f "$effective_pom"' EXIT
+
+      mvn help:effective-pom \
+        -Doutput="$effective_pom" \
+        >/dev/null
+
+      echo "Java-related Maven configuration"
+      echo "================================"
+      echo
+
+      for property in \
+        maven.compiler.release \
+        maven.compiler.source \
+        maven.compiler.target \
+        project.build.sourceEncoding \
+        project.reporting.outputEncoding
+      do
+        value="$(
+          xmllint \
+            --xpath \
+            "string(/*[local-name()='project']/*[local-name()='properties']/*[local-name()='${property}'])" \
+            "$effective_pom" \
+            2>/dev/null || true
+        )"
+
+        if [[ -n "$value" ]]; then
+          printf '%-34s %s\n' "${property}:" "$value"
+        fi
+      done
+
+      echo
+      echo "Compiler plugin configuration"
+      echo "============================="
+      echo
+
+      xmllint \
+        --xpath \
+        "//*[local-name()='plugin'][*[local-name()='artifactId']='maven-compiler-plugin']" \
+        "$effective_pom" \
+        2>/dev/null || echo "maven-compiler-plugin configuration was not found"
+
+      echo
+
+  - name: java-installation-instructions
+    title: Show Java and Maven installation instructions
+    description: Print practical installation commands for Java and Maven on macOS with Homebrew.
+    labels:
+      - java
+      - maven
+      - installation
+      - install
+      - setup
+      - homebrew
+      - macos
+      - instructions
+      - java-helper
+    run: |
+      set -euo pipefail
+
+      cat <<'INSTRUCTIONS'
+      Install Java and Maven with Homebrew
+      ====================================
+
+      Install OpenJDK:
+
+        brew install openjdk
+
+      Install Maven:
+
+        brew install maven
+
+      Verify the installation:
+
+        java -version
+        javac -version
+        mvn -version
+
+      Homebrew may print additional instructions for linking OpenJDK.
+      Follow those instructions when Java is not detected automatically.
+      INSTRUCTIONS
+
+  - name: java-maven-manual-commands
+    title: Show common manual Maven commands
+    description: Print a small reference of common Maven commands for Java projects.
+    labels:
+      - java
+      - maven
+      - commands
+      - manual
+      - reference
+      - help
+      - build
+      - test
+      - package
+      - clean
+      - java-helper
+    run: |
+      set -euo pipefail
+
+      cat <<'COMMANDS'
+      Common Maven commands
+      =====================
+
+      Clean generated files:
+
+        mvn clean
+
+      Compile the project:
+
+        mvn compile
+
+      Run tests:
+
+        mvn test
+
+      Package the project:
+
+        mvn package
+
+      Verify the project:
+
+        mvn verify
+
+      Install the artifact locally:
+
+        mvn install
+
+      Show the dependency tree:
+
+        mvn dependency:tree
+
+      Show the effective POM:
+
+        mvn help:effective-pom
+
+      Apply Spotless formatting:
+
+        mvn spotless:apply
+
+      Check Spotless formatting:
+
+        mvn spotless:check
+      COMMANDS
