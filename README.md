@@ -2,6 +2,7 @@
 
 [![CI](https://github.com/pierinho13/cmdpeek/actions/workflows/ci.yaml/badge.svg)](https://github.com/pierinho13/cmdpeek/actions/workflows/ci.yaml)
 [![Release](https://img.shields.io/github/v/release/pierinho13/cmdpeek)](https://github.com/pierinho13/cmdpeek/releases)
+[![Downloads](https://img.shields.io/github/downloads/pierinho13/cmdpeek/total)](https://github.com/pierinho13/cmdpeek/releases)
 [![Go Report Card](https://goreportcard.com/badge/github.com/pierinho13/cmdpeek)](https://goreportcard.com/report/github.com/pierinho13/cmdpeek)
 [![License](https://img.shields.io/github/license/pierinho13/cmdpeek)](LICENSE)
 
@@ -606,12 +607,14 @@ shell: sh
 
 - [`examples/basic.yaml`](examples/basic.yaml) covers all supported variable sources, defaults, dependent variables, shell overrides and long previews.
 - [`examples/kubernetes.yaml`](examples/kubernetes.yaml) contains interactive Kubernetes workflows and demonstrates aliases represented as searchable labels.
+- [`examples/java.yaml`](examples/java.yaml) contains Java, Maven, Gradle and Spring Boot development workflows.
 
-Run either collection with:
+Run a collection with:
 
 ```bash
 cmdpeek --config examples/basic.yaml
 cmdpeek --config examples/kubernetes.yaml
+cmdpeek --config examples/java.yaml
 ```
 
 ## Security model
@@ -637,14 +640,15 @@ go build -o cmdpeek ./cmd/cmdpeek
 Project structure:
 
 ```text
-cmd/cmdpeek          CLI entry point
-internal/catalog     YAML loading and validation
-internal/template    Variable rendering and previews
-internal/variable    Dynamic command option resolution
-internal/tui         Catalog, variable and confirmation interfaces
-internal/executor    Shell execution
+cmd/cmdpeek             CLI entry point
+internal/catalog        YAML loading and validation
+internal/configsource   Local and GitHub configuration resolution and caching
+internal/template       Variable rendering and previews
+internal/variable       Dynamic command option resolution
+internal/tui            Catalog, variable and confirmation interfaces
+internal/executor       Shell execution
 internal/noninteractive Non-interactive command and variable resolution
-examples             Example command catalogs
+examples                Example command catalogs
 ```
 
 ## Roadmap

@@ -1,22 +1,22 @@
-# Contributing to kubectl-peek
+# Contributing to cmdpeek
 
-Thank you for your interest in contributing to `kubectl-peek`.
+Thank you for your interest in contributing to `cmdpeek`.
 
 The project aims to remain small, simple, and easy to use. Contributions should preserve that focus.
 
 ## Requirements
 
-- Go installed
-- A valid Kubernetes kubeconfig
-- Access to a Kubernetes cluster for manual testing
+- The Go version declared in [`go.mod`](go.mod)
+- A supported terminal
+- Optional external tools required by the example commands you want to test
 
 ## Development setup
 
 Clone the repository:
 
 ```bash
-git clone https://github.com/pierinho13/kubectl-peek.git
-cd kubectl-peek
+git clone https://github.com/pierinho13/cmdpeek.git
+cd cmdpeek
 ```
 
 Download dependencies:
@@ -34,13 +34,13 @@ go test ./...
 Build the project:
 
 ```bash
-go build -o kubectl-peek .
+go build -o cmdpeek ./cmd/cmdpeek
 ```
 
 Run it locally:
 
 ```bash
-./kubectl-peek
+./cmdpeek --config examples/basic.yaml
 ```
 
 ## Code quality
@@ -64,16 +64,16 @@ goreleaser release --snapshot --clean
 Create a branch from `main`:
 
 ```bash
-git checkout main
-git pull
-git checkout -b feat/my-change
+git switch main
+git pull --ff-only
+git switch -c feat/my-change
 ```
 
 Use a clear branch name, such as:
 
 ```text
-feat/add-new-workload
-fix/empty-secret-output
+feat/add-variable-source
+fix/empty-command-options
 docs/update-installation
 ```
 
@@ -84,10 +84,10 @@ Use clear and focused commit messages.
 Examples:
 
 ```text
-feat: add Secret usage discovery
-fix: handle empty namespaces
+feat: add command history
+fix: handle empty command output
 docs: update Homebrew installation
-test: cover Secret volume references
+test: cover dependent variables
 ```
 
 ## Pull requests
@@ -105,15 +105,16 @@ A pull request should:
 
 Use the bug report template and include:
 
-- `kubectl-peek` version
+- `cmdpeek` version or commit
 - operating system
-- Kubernetes version
-- relevant command
+- terminal and shell
+- configuration sample with sensitive values removed
+- command-line arguments
 - expected behavior
 - actual behavior
 - steps to reproduce
 
-Do not include real Secret values, tokens, credentials, kubeconfig contents, or other sensitive information.
+Do not include tokens, credentials, private configuration contents or other sensitive information.
 
 ## Feature requests
 
@@ -123,7 +124,7 @@ Please describe:
 
 - the problem you are trying to solve
 - the expected behavior
-- why it fits the scope of `kubectl-peek`
+- why it fits the scope of `cmdpeek`
 
 ## Security issues
 

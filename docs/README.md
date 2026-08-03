@@ -4,5 +4,5 @@
 - [Variable sources](variables.md)
 - [Writing effective command catalogs](catalog-design.md)
 - [Examples and patterns](examples.md)
-- [Security considerations](security.md)
+- [Security considerations](../SECURITY.md)
 - [Development](development.md)

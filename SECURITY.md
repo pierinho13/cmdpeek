@@ -18,7 +18,8 @@ Include:
 - potential impact
 - any suggested mitigation
 
-Please avoid including real Kubernetes Secret values, credentials, access tokens, kubeconfig files, private cluster information, or other sensitive data.
+Please avoid including credentials, access tokens, private configuration files, infrastructure details or other sensitive data.
+
 ## Security considerations
 
 `cmdpeek` executes local shell commands with the current user's environment and permissions.

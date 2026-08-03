@@ -45,13 +45,15 @@ test -z "$files" || {
 ## Project structure
 
 ```text
-cmd/cmdpeek          CLI entry point
-internal/catalog     YAML loading and validation
-internal/template    Variable rendering and previews
-internal/variable    Dynamic command option resolution
-internal/tui         Catalog, variable and confirmation interfaces
-internal/executor    Shell execution
-examples             Example command catalogs
+cmd/cmdpeek             CLI entry point
+internal/catalog        YAML loading and validation
+internal/configsource   Local and GitHub configuration resolution and caching
+internal/template       Variable rendering and previews
+internal/variable       Dynamic command option resolution
+internal/tui            Catalog, variable and confirmation interfaces
+internal/executor       Shell execution
+internal/noninteractive Non-interactive command and variable resolution
+examples                Example command catalogs
 ```
 
 ## Release snapshot
