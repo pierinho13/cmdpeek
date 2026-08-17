@@ -669,4 +669,4 @@ Contributions are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md), [CODE_OF_COND
 
 ## License
 
-Licensed under the [MIT License](LICENSE).
+Licensed under the [MIT License](LICENSE). 
