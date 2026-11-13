@@ -1,12 +1,12 @@
 module github.com/pierinho13/cmdpeek
 
-go 1.26.0
+go 1.26.7
 
 require (
 	charm.land/bubbles/v2 v2.2.1
 	charm.land/bubbletea/v2 v2.1.1
-	charm.land/lipgloss/v2 v2.0.6
-	go.yaml.in/yaml/v4 v4.0.0-rc.7
+	charm.land/lipgloss/v2 v2.1.0
+	go.yaml.in/yaml/v4 v4.0.0
 )
 
 require (
